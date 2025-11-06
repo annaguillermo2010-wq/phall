@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📸 Album Compartido</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="auth-row">
+  <button id="loginBtn">Iniciar sesión con Google</button>
+</div>
+
+<div id="user-area" style="display:none;">
+  <p id="welcome"></p>
+  <button id="logoutBtn">Cerrar sesión</button>
+</div>
+
+<form id="photoForm" style="display:none;">
+  <input type="text" id="placeInput" placeholder="📍 Lugar">
+  <input type="file" id="photoInput" accept="image/*">
+  <button type="submit">Subir foto</button>
+</form>
+
+<div id="gallery"></div>
+<style>
+  body { font-family: sans-serif; background:#fff7db; text-align:center; }
+button { padding:0.5rem 1rem; margin:0.5rem; cursor:pointer; }
+#gallery { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap:10px; margin:20px; }
+.photo-card { border:1px solid #f0b86e; border-radius:12px; padding:5px; box-shadow:0 3px 6px rgba(231,125,0,0.12); }
+.photo-card img { width:100%; border-radius:8px; }
+.caption { margin-top:5px; font-size:0.9rem; color:#8b4b00; }
+
+</style>
+<script type="module" src="app.js">
+  // ====== Firebase imports ======
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-storage.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+
+// ====== Tu configuración de Firebase ======
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "phal-88bd8.firebaseapp.com",
+  projectId: "phal-88bd8",
+  storageBucket: "phal-88bd8.firebasestorage.app",
+  messagingSenderId: "542012665295",
+  appId: "1:542012665295:web:811b6ab845a22debea76ba",
+  measurementId: "G-4G3WE7J5J0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+const storage = getStorage(app);
+const db = getFirestore(app);
+
+// ====== DOM ======
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const photoForm = document.getElementById("photoForm");
+const placeInput = document.getElementById("placeInput");
+const photoInput = document.getElementById("photoInput");
+const gallery = document.getElementById("gallery");
+const userArea = document.getElementById("user-area");
+const authRow = document.getElementById("auth-row");
+const welcome = document.getElementById("welcome");
+
+// ====== Login Google ======
+loginBtn.addEventListener("click", async () => {
+  try { await signInWithPopup(auth, provider); }
+  catch (err) { alert("Error al iniciar sesión: " + err.message); }
+});
+
+// ====== Logout ======
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+});
+
+// ====== Detectar estado del usuario ======
+onAuthStateChanged(auth, (user) => {
+  if(user){
+    authRow.style.display = "none";
+    userArea.style.display = "flex";
+    photoForm.style.display = "flex";
+    welcome.textContent = `Hola, ${user.displayName}`;
+    loadPhotos(user.uid);
+  } else {
+    authRow.style.display = "flex";
+    userArea.style.display = "none";
+    photoForm.style.display = "none";
+    gallery.innerHTML = "";
+  }
+});
+
+// ====== Subir foto ======
+photoForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  const file = photoInput.files[0];
+  const place = placeInput.value.trim();
+  const user = auth.currentUser;
+  if(!user || !file || !place) return alert("Elegí una foto y escribí el lugar");
+
+  const path = `photos/${user.uid}/${Date.now()}_${file.name}`;
+  const sref = ref(storage, path);
+  await uploadBytes(sref, file);
+  const url = await getDownloadURL(sref);
+
+  await addDoc(collection(db, "photos"), { uid: user.uid, name: user.displayName, url, place, createdAt: serverTimestamp() });
+
+  placeInput.value = "";
+  photoInput.value = "";
+  loadPhotos(user.uid);
+});
+
+// ====== Cargar fotos ======
+async function loadPhotos(uid){
+  gallery.innerHTML = "<p>Cargando...</p>";
+  const q = query(collection(db,"photos"), where("uid","==",uid), orderBy("createdAt","desc"));
+  const snap = await getDocs(q);
+  gallery.innerHTML = "";
+  if(snap.empty){ gallery.innerHTML="<p>No hay fotos aún.</p>"; return; }
+
+  snap.forEach((doc,i)=>{
+    const d = doc.data();
+    const card = document.createElement("div");
+    card.className = "photo-card";
+    card.innerHTML = `<img src="${d.url}" alt="${d.place}"><div class="caption">${d.place}</div>`;
+    gallery.appendChild(card);
+  });
+}
+
+</script>
+</body>
+</html>
