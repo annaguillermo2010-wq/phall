@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📸 Album Compartido</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📸 Album Compartido</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="auth-row">
-  <button id="loginBtn">Iniciar sesión con Google</button>
-</div>
+  <div id="auth-row">
+    <button id="loginBtn">Iniciar sesión con Google</button>
+  </div>
 
-<div id="user-area" style="display:none;">
-  <p id="welcome"></p>
-  <button id="logoutBtn">Cerrar sesión</button>
-</div>
+  <div id="user-area" style="display:none;">
+    <p id="welcome"></p>
+    <button id="logoutBtn">Cerrar sesión</button>
+  </div>
 
-<form id="photoForm" style="display:none;">
-  <input type="text" id="placeInput" placeholder="📍 Lugar">
-  <input type="file" id="photoInput" accept="image/*">
-  <button type="submit">Subir foto</button>
-</form>
+  <form id="photoForm" style="display:none;">
+    <input type="text" id="placeInput" placeholder="📍 Lugar">
+    <input type="file" id="photoInput" accept="image/*">
+    <button type="submit">Subir foto</button>
+  </form>
 
-<div id="gallery"></div>
+  <div id="gallery"></div>
 <style>
-  body { font-family: sans-serif; background:#fff7db; text-align:center; }
+  body { font-family: sans-serif; background:#fff7db; text-align:center; margin:0; padding:0; }
 button { padding:0.5rem 1rem; margin:0.5rem; cursor:pointer; }
 #gallery { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap:10px; margin:20px; }
 .photo-card { border:1px solid #f0b86e; border-radius:12px; padding:5px; box-shadow:0 3px 6px rgba(231,125,0,0.12); }
@@ -33,16 +33,16 @@ button { padding:0.5rem 1rem; margin:0.5rem; cursor:pointer; }
 .caption { margin-top:5px; font-size:0.9rem; color:#8b4b00; }
 
 </style>
-<script type="module" src="app.js">
-  // ====== Firebase imports ======
+  <script type="module" src="app.js">
+    // ====== Firebase imports ======
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-storage.js";
 import { getFirestore, collection, addDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-// ====== Tu configuración de Firebase ======
+// ====== Firebase config ======
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
+  apiKey: "AIzaSyDD81maTjt_uUtNhOR4mvjhF0_vQYwqeic",
   authDomain: "phal-88bd8.firebaseapp.com",
   projectId: "phal-88bd8",
   storageBucket: "phal-88bd8.firebasestorage.app",
@@ -51,6 +51,7 @@ const firebaseConfig = {
   measurementId: "G-4G3WE7J5J0"
 };
 
+// ====== Inicializar Firebase ======
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -86,7 +87,7 @@ onAuthStateChanged(auth, (user) => {
     userArea.style.display = "flex";
     photoForm.style.display = "flex";
     welcome.textContent = `Hola, ${user.displayName}`;
-    loadPhotos(user.uid);
+    loadPhotos();
   } else {
     authRow.style.display = "flex";
     userArea.style.display = "none";
@@ -112,13 +113,13 @@ photoForm.addEventListener("submit", async e => {
 
   placeInput.value = "";
   photoInput.value = "";
-  loadPhotos(user.uid);
+  loadPhotos();
 });
 
 // ====== Cargar fotos ======
-async function loadPhotos(uid){
+async function loadPhotos(){
   gallery.innerHTML = "<p>Cargando...</p>";
-  const q = query(collection(db,"photos"), where("uid","==",uid), orderBy("createdAt","desc"));
+  const q = query(collection(db,"photos"), orderBy("createdAt","desc"));
   const snap = await getDocs(q);
   gallery.innerHTML = "";
   if(snap.empty){ gallery.innerHTML="<p>No hay fotos aún.</p>"; return; }
@@ -132,6 +133,6 @@ async function loadPhotos(uid){
   });
 }
 
-</script>
+  </script>
 </body>
 </html>
