@@ -1,46 +1,120 @@
+/* ==== Estilo general ==== */
 body {
-  font-family: sans-serif;
-  background: #fff7db;
-  text-align: center;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #fff7db, #ffe0b2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
   margin: 0;
-  padding: 0;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
+/* ==== Contenedores principales ==== */
+#auth-row, #user-area, #photoForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 15px 0;
+}
+
+/* ==== Botones ==== */
 button {
-  padding: 0.5rem 1rem;
-  margin: 0.5rem;
+  padding: 0.7rem 1.4rem;
+  margin: 8px;
   cursor: pointer;
-  border-radius: 8px;
-  border: 1px solid #f0b86e;
-  background-color: #ffe7b3;
-  transition: 0.2s;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #ffc66b, #ffb347);
+  color: #5b2c00;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 8px rgba(255, 163, 26, 0.3);
 }
 
 button:hover {
-  background-color: #ffd480;
+  background: linear-gradient(90deg, #ffb347, #ff9933);
+  transform: scale(1.05);
 }
 
+/* ==== Inputs ==== */
+input[type="text"], input[type="file"] {
+  margin: 8px 0;
+  padding: 0.6rem;
+  border: 1px solid #f0b86e;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 300px;
+  background-color: #fffaf0;
+  font-size: 0.95rem;
+}
+
+input::file-selector-button {
+  background-color: #ffde99;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+input::file-selector-button:hover {
+  background-color: #ffc766;
+}
+
+/* ==== Galería ==== */
 #gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  margin: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+  margin: 25px auto;
+  width: 100%;
+  max-width: 800px;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
+/* ==== Tarjetas ==== */
 .photo-card {
+  background-color: #fffdf5;
   border: 1px solid #f0b86e;
-  border-radius: 12px;
-  padding: 5px;
-  box-shadow: 0 3px 6px rgba(231, 125, 0, 0.12);
+  border-radius: 16px;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(231, 125, 0, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.photo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(231, 125, 0, 0.25);
 }
 
 .photo-card img {
   width: 100%;
-  border-radius: 8px;
+  border-radius: 12px;
+  object-fit: cover;
 }
 
 .caption {
-  margin-top: 5px;
-  font-size: 0.9rem;
+  margin-top: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
   color: #8b4b00;
+}
+
+/* ==== Adaptación a pantallas pequeñas ==== */
+@media (max-width: 600px) {
+  button {
+    width: 90%;
+  }
+  input[type="text"], input[type="file"] {
+    width: 95%;
+  }
+  #gallery {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+  }
 }
